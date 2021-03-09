@@ -1,0 +1,76 @@
+<config>
+  <actions>
+    <action type="call" label="Test Call FOREST"
+            transport="VP_ENV_TRANSPORT"
+            expected_cause_code="200"
+            caller="VP_ENV_CALLER"
+            callee="VP_ENV_CALLEE_1"
+            max_duration="VP_ENV_MAX_DURATION"
+            max_ringing_duration="VP_ENV_MAX_RINGING_DURATION"
+            hangup="VP_ENV_HANGUP"
+            account="VP_ENV_ACCOUNT"
+            username="VP_ENV_USERNAME"
+            password="VP_ENV_PASSWORD"
+            realm="VP_ENV_REALM"
+            registrar="VP_ENV_REGISTRAR"
+            rtp_stats="true"
+            play="/voice_ref_files/audio3.wav"
+    >
+    </action>
+    <action type="wait" complete="true"/>
+    <action type="call" label="Test Call FOREST"
+            transport="VP_ENV_TRANSPORT"
+            expected_cause_code="200"
+            caller="VP_ENV_CALLER"
+            callee="VP_ENV_CALLEE_2"
+            max_duration="VP_ENV_MAX_DURATION"
+            max_ringing_duration="VP_ENV_MAX_RINGING_DURATION"
+            hangup="VP_ENV_HANGUP"
+            account="VP_ENV_ACCOUNT"
+            username="VP_ENV_USERNAME"
+            password="VP_ENV_PASSWORD"
+            realm="VP_ENV_REALM"
+            registrar="VP_ENV_REGISTRAR"
+            rtp_stats="true"
+            play="/voice_ref_files/audio3.wav"
+    >
+    </action>
+    <action type="wait" complete="true"/>
+    <action type="call" label="Test Call FOREST"
+            transport="VP_ENV_TRANSPORT"
+            expected_cause_code="200"
+            caller="VP_ENV_CALLER"
+            callee="VP_ENV_CALLEE_3"
+            max_duration="VP_ENV_MAX_DURATION"
+            max_ringing_duration="VP_ENV_MAX_RINGING_DURATION"
+            hangup="VP_ENV_HANGUP"
+            account="VP_ENV_ACCOUNT"
+            username="VP_ENV_USERNAME"
+            password="VP_ENV_PASSWORD"
+            realm="VP_ENV_REALM"
+            registrar="VP_ENV_REGISTRAR"
+            rtp_stats="true"
+            play="/voice_ref_files/audio3.wav"
+    >
+    </action>
+    <action type="wait" complete="true"/>
+    <action type="call" label="Test Call FOREST"
+            transport="VP_ENV_TRANSPORT"
+            expected_cause_code="200"
+            caller="VP_ENV_CALLER"
+            callee="VP_ENV_CALLEE_4"
+            max_duration="VP_ENV_MAX_DURATION"
+            max_ringing_duration="VP_ENV_MAX_RINGING_DURATION"
+            hangup="VP_ENV_HANGUP"
+            account="VP_ENV_ACCOUNT"
+            username="VP_ENV_USERNAME"
+            password="VP_ENV_PASSWORD"
+            realm="VP_ENV_REALM"
+            registrar="VP_ENV_REGISTRAR"
+            rtp_stats="true"
+            play="/voice_ref_files/audio3.wav"
+    >
+    </action>
+    <action type="wait" complete="true"/>
+  </actions>
+</config>

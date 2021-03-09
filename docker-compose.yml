@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+  voip:
+    build:
+      # network: host
+      context: .
+    ports:
+      - "8080:8080"
+    networks:
+      - overlay
+    image: voip
+    container_name: voip
+    restart: always
+    environment: 
+      - VP_ENV_TRANSPORT=udp
+      - VP_ENV_CALLER=
+      - VP_ENV_CALLEE_1=
+      - VP_ENV_CALLEE_2=
+      - VP_ENV_CALLEE_3=
+      - VP_ENV_CALLEE_4=
+      - VP_ENV_MAX_DURATION=120
+      - VP_ENV_MAX_RINGING_DURATION=90
+      - VP_ENV_HANGUP=5
+      - VP_ENV_ACCOUNT=
+      - VP_ENV_USERNAME=
+      - VP_ENV_PASSWORD=
+      - VP_ENV_REALM=
+      - VP_ENV_REGISTRAR=
+      - API_HTTP_ADDR=:8080
+      - API_FALSE_RESULT=http://localhost:3540/callbot?result=false
+      - API_TRUE_RESULT=http://localhost:3540/callbot?result=true
+      - API_LOG_LEVEL=debug
+    volumes:
+      - ./voice:/voice_ref_files
+      - ./config:/config
+
+networks:
+  overlay:
