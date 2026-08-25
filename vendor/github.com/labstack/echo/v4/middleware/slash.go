@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: © 2015 LabStack LLC and Echo contributors
+
 package middleware
 
 import (
@@ -6,24 +9,20 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type (
-	// TrailingSlashConfig defines the config for TrailingSlash middleware.
-	TrailingSlashConfig struct {
-		// Skipper defines a function to skip middleware.
-		Skipper Skipper
+// TrailingSlashConfig defines the config for TrailingSlash middleware.
+type TrailingSlashConfig struct {
+	// Skipper defines a function to skip middleware.
+	Skipper Skipper
 
-		// Status code to be used when redirecting the request.
-		// Optional, but when provided the request is redirected using this code.
-		RedirectCode int `yaml:"redirect_code"`
-	}
-)
+	// Status code to be used when redirecting the request.
+	// Optional, but when provided the request is redirected using this code.
+	RedirectCode int `yaml:"redirect_code"`
+}
 
-var (
-	// DefaultTrailingSlashConfig is the default TrailingSlash middleware config.
-	DefaultTrailingSlashConfig = TrailingSlashConfig{
-		Skipper: DefaultSkipper,
-	}
-)
+// DefaultTrailingSlashConfig is the default TrailingSlash middleware config.
+var DefaultTrailingSlashConfig = TrailingSlashConfig{
+	Skipper: DefaultSkipper,
+}
 
 // AddTrailingSlash returns a root level (before router) middleware which adds a
 // trailing slash to the request `URL#Path`.
@@ -33,7 +32,7 @@ func AddTrailingSlash() echo.MiddlewareFunc {
 	return AddTrailingSlashWithConfig(DefaultTrailingSlashConfig)
 }
 
-// AddTrailingSlashWithConfig returns a AddTrailingSlash middleware with config.
+// AddTrailingSlashWithConfig returns an AddTrailingSlash middleware with config.
 // See `AddTrailingSlash()`.
 func AddTrailingSlashWithConfig(config TrailingSlashConfig) echo.MiddlewareFunc {
 	// Defaults
@@ -60,7 +59,7 @@ func AddTrailingSlashWithConfig(config TrailingSlashConfig) echo.MiddlewareFunc 
 
 				// Redirect
 				if config.RedirectCode != 0 {
-					return c.Redirect(config.RedirectCode, uri)
+					return c.Redirect(config.RedirectCode, sanitizeURI(uri))
 				}
 
 				// Forward
@@ -108,7 +107,7 @@ func RemoveTrailingSlashWithConfig(config TrailingSlashConfig) echo.MiddlewareFu
 
 				// Redirect
 				if config.RedirectCode != 0 {
-					return c.Redirect(config.RedirectCode, uri)
+					return c.Redirect(config.RedirectCode, sanitizeURI(uri))
 				}
 
 				// Forward
@@ -118,4 +117,13 @@ func RemoveTrailingSlashWithConfig(config TrailingSlashConfig) echo.MiddlewareFu
 			return next(c)
 		}
 	}
+}
+
+func sanitizeURI(uri string) string {
+	// double slash `\\`, `//` or even `\/` is absolute uri for browsers and by redirecting request to that uri
+	// we are vulnerable to open redirect attack. so replace all slashes from the beginning with single slash
+	if len(uri) > 1 && (uri[0] == '\\' || uri[0] == '/') && (uri[1] == '\\' || uri[1] == '/') {
+		uri = "/" + strings.TrimLeft(uri, `/\`)
+	}
+	return uri
 }
