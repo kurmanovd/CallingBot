@@ -1,25 +1,28 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: © 2015 LabStack LLC and Echo contributors
+
 package echo
 
 import (
 	"bufio"
+	"errors"
+	"fmt"
 	"net"
 	"net/http"
 )
 
-type (
-	// Response wraps an http.ResponseWriter and implements its interface to be used
-	// by an HTTP handler to construct an HTTP response.
-	// See: https://golang.org/pkg/net/http/#ResponseWriter
-	Response struct {
-		echo        *Echo
-		beforeFuncs []func()
-		afterFuncs  []func()
-		Writer      http.ResponseWriter
-		Status      int
-		Size        int64
-		Committed   bool
-	}
-)
+// Response wraps an http.ResponseWriter and implements its interface to be used
+// by an HTTP handler to construct an HTTP response.
+// See: https://golang.org/pkg/net/http/#ResponseWriter
+type Response struct {
+	Writer      http.ResponseWriter
+	echo        *Echo
+	beforeFuncs []func()
+	afterFuncs  []func()
+	Status      int
+	Size        int64
+	Committed   bool
+}
 
 // NewResponse creates a new instance of Response.
 func NewResponse(w http.ResponseWriter, e *Echo) (r *Response) {
@@ -56,11 +59,11 @@ func (r *Response) WriteHeader(code int) {
 		r.echo.Logger.Warn("response already committed")
 		return
 	}
+	r.Status = code
 	for _, fn := range r.beforeFuncs {
 		fn()
 	}
-	r.Status = code
-	r.Writer.WriteHeader(code)
+	r.Writer.WriteHeader(r.Status)
 	r.Committed = true
 }
 
@@ -84,14 +87,24 @@ func (r *Response) Write(b []byte) (n int, err error) {
 // buffered data to the client.
 // See [http.Flusher](https://golang.org/pkg/net/http/#Flusher)
 func (r *Response) Flush() {
-	r.Writer.(http.Flusher).Flush()
+	err := http.NewResponseController(r.Writer).Flush()
+	if err != nil && errors.Is(err, http.ErrNotSupported) {
+		panic(fmt.Errorf("echo: response writer %T does not support flushing (http.Flusher interface)", r.Writer))
+	}
 }
 
 // Hijack implements the http.Hijacker interface to allow an HTTP handler to
 // take over the connection.
 // See [http.Hijacker](https://golang.org/pkg/net/http/#Hijacker)
 func (r *Response) Hijack() (net.Conn, *bufio.ReadWriter, error) {
-	return r.Writer.(http.Hijacker).Hijack()
+	return http.NewResponseController(r.Writer).Hijack()
+}
+
+// Unwrap returns the original http.ResponseWriter.
+// ResponseController can be used to access the original http.ResponseWriter.
+// See [https://go.dev/blog/go1.20]
+func (r *Response) Unwrap() http.ResponseWriter {
+	return r.Writer
 }
 
 func (r *Response) reset(w http.ResponseWriter) {
